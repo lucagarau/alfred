@@ -1,2 +1,3 @@
 dist/
 alfred_bot.egg-info/
+pyproject.toml
