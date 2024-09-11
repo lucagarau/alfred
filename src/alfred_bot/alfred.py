@@ -3,42 +3,55 @@ import telebot
 
         
 class Alfred:
-    def __init__(self, username, token = None):
-        self.bordcast_users = dict()
-        self.TOKEN = "YOUR_BOT_TOKEN" 
+    def __init__(self,token,default_chat_id = None):
+        self.TOKEN = token 
         self.bot = telebot.TeleBot(self.TOKEN)
-        #self.user = get_chat_id(username)
-        self.user = username
+        self.user = default_chat_id
 
-        if token is None:
-            raise ValueError("Bot Token is required")
-        else:
-            self.TOKEN = token
+    def send_message(self,message, chat_id = None):
+        #if chat_id is not specified, send to default chat_id if available
+        if chat_id is None and self.user is not None:
+            recipient = self.user
+        elif chat_id is not None:
+            recipient = chat_id
+        elif self.user is None and chat_id is None:
+            raise ValueError("No chat_id specified")
+        
+        self.bot.send_message(recipient, message)
 
-    def add_user(self, name, chat_id):
-        self.bordcast_users[name] = self.bot.get_chat(chat_id).id
+    def send_photo(self,photo_path, chat_id = None):
+        #if chat_id is not specified, send to default chat_id if available
+        if chat_id is None and self.user is not None:
+            recipient = self.user
+        elif chat_id is not None:
+            recipient = chat_id
+        elif self.user is None and chat_id is None:
+            raise ValueError("No chat_id specified")
+        
+        try:
+            self.bot.send_photo(recipient, photo = open(photo_path, 'rb'))
+        except FileNotFoundError:
+            raise FileNotFoundError("Photo not found")
+        except Exception as e:
+            print("an error occured: ", e)
 
-    def remove_user(self, name):
-        self.bordcast_users.pop(name)
 
-    def send_message(self, message = "poho", broadcast = False):
-        if broadcast:
-            for br_user in self.bordcast_users.values():
-                self.bot.send_message(br_user, message)
-        else:
-            self.bot.send_message(self.user, message)
+    def send_file(self,file_path, chat_id = None):
+        #if chat_id is not specified, send to default chat_id if available
+        if chat_id is None and self.user is not None:
+            recipient = self.user
+        elif chat_id is not None:
+            recipient = chat_id
+        elif self.user is None and chat_id is None:
+            raise ValueError("No chat_id specified")
+        
+        try:
+            self.bot.send_document(recipient, document= open(file_path, 'rb'))
+        except FileNotFoundError:
+            raise FileNotFoundError("Photo not found")
+        except Exception as e:
+            print("an error occured: ", e)
 
-    def send_photo(self, photo_path, broadcast = False):
-        if broadcast:
-            for br_user in self.bordcast_users.values():
-                self.bot.send_photo(br_user, photo = open(photo_path, 'rb'))
-        else:
-            self.bot.send_photo(self.user, photo = open(photo_path, 'rb'))
+    
 
-    def send_file(self, file_path, broadcast = False):
-        if broadcast:
-            for br_user in self.bordcast_users.values():
-                self.bot.send_document(br_user, document = open(file_path, 'rb'))
-        else:
-            self.bot.send_document(self.user, document = open(file_path, 'rb'))
     
